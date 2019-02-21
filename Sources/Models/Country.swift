@@ -17,11 +17,15 @@ public class Country: NSObject {
     }
     /// Ex: "### ## ######"
     public var formatPattern: String
-
-    public init(countryCode: String, phoneExtension: String, formatPattern: String = "###################") {
+    public var formatPatternPlaceholder: String
+    
+    public init(countryCode: String, phoneExtension: String, formatPattern: String = "###################", formatPatternPlaceholder: String) {
         self.countryCode = countryCode
         self.phoneExtension = phoneExtension
         self.formatPattern = formatPattern
+        
+        let phone = formatPatternPlaceholder
+        self.formatPatternPlaceholder = phone.replacingOccurrences(of: "[0123456789]", with: "x",options: .regularExpression)
     }
     
     /// Returns a Country entity of the current iphone's localization region code
@@ -43,7 +47,7 @@ public class Country: NSObject {
     /// Returnes an empty country entity for test or other purposes. 
     /// "+" code returns a flag with question mark.
     public static var empty: Country {
-        return Country(countryCode: "?", phoneExtension: "")
+        return Country(countryCode: "?", phoneExtension: "", formatPatternPlaceholder: "")
     }
     
     /// Returns a country by a phone extension.
