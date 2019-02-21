@@ -36,14 +36,15 @@ struct NKVSourcesHelper {
                     for object in array {
                         guard let code = object["code"],
                             let phoneExtension = object["dial_code"],
-                            let formatPattern = object["format"],
-                            let format = object["format_place_holder"] else {
+                            let formatPlaceHolder = object["format_place_holder"],
+                            let formatPattern = object["format"] else {
                                 fatalError("Must be valid json.")
+                                
                         }
                         countries.append(Country(countryCode: code,
                                                  phoneExtension: phoneExtension,
                                                  formatPattern: formatPattern,
-                                                 formatPatternPlaceholder: format))
+                                                 formatPatternPlaceHolder: formatPlaceHolder))
                     }
                 }
             } else {

@@ -83,8 +83,8 @@ open class TextFieldPatternFormat: UITextField {
      */
     var formattingPattern: String = "" {
         didSet {
-            self.maxLength = formattingPattern.characters.count
-            self.formatting = .custom
+            self.maxLength = formattingPattern.count
+            self.formatting = .noFormatting
         }
     }
     
@@ -160,12 +160,12 @@ open class TextFieldPatternFormat: UITextField {
         NotificationCenter.default.addObserver(self, selector: #selector(TextFieldPatternFormat.textDidChange), name: NSNotification.Name(rawValue: "UITextFieldTextDidChangeNotification"), object: self)
     }
     
-    func textDidChange() {
+    @objc func textDidChange() {
         
         // TODO: - Isn't there more elegant way how to do this?
         let currentTextForFormatting: String
         
-        if super.text?.characters.count > _textWithoutSecureBullets.characters.count {
+        if super.text?.count > _textWithoutSecureBullets.count {
             currentTextForFormatting = _textWithoutSecureBullets + super.text!.substring(from: super.text!.characters.index(super.text!.startIndex, offsetBy: _textWithoutSecureBullets.characters.count))
         } else if super.text?.characters.count == 0 {
             _textWithoutSecureBullets = ""
@@ -191,7 +191,7 @@ open class TextFieldPatternFormat: UITextField {
                 if formattingPattern.substring(with: formattingPatternRange) != String(replacementChar) {
                     finalText = finalText + formattingPattern.substring(with: formattingPatternRange)
                     finalSecureText = finalSecureText + formattingPattern.substring(with: formattingPatternRange)
-                } else if tempString.characters.count > 0 {
+                } else if tempString.count > 0 {
                     let pureStringRange = tempIndex ..< tempString.index(tempIndex, offsetBy: 1)
                     
                     finalText = finalText + tempString.substring(with: pureStringRange)
@@ -219,7 +219,7 @@ open class TextFieldPatternFormat: UITextField {
         
         // Let's check if we have additional max length restrictions
         if maxLength > 0 {
-            if text.characters.count > maxLength {
+            if text.count > maxLength {
                 super.text = text.substring(to: text.index(text.startIndex, offsetBy: maxLength))
                 _textWithoutSecureBullets = _textWithoutSecureBullets.substring(to: _textWithoutSecureBullets.characters.index(_textWithoutSecureBullets.startIndex, offsetBy: maxLength))
             }

@@ -11,19 +11,18 @@ public protocol NKVPhonePickerTextFieldProtocol{
     func countriesViewController(_ sender: CountriesViewController, didSelectCountry country: Country)
 }
 
-open class NKVPhonePickerTextField: TextFieldPatternFormat {
+public class NKVPhonePickerTextField: TextFieldPatternFormat {
     // MARK: Interface
     // MARK: Settings
     /// Set this property in order to present the CountryPickerViewController
     /// when user clicks on the flag button
     @IBOutlet public weak var phonePickerDelegate: UIViewController?
-
     /// Use this var for setting countries in the top of the tableView
     /// Ex:
     ///
     ///     textField.favoriteCountriesLocaleIdentifiers = ["RU", "JM", "GB"]
     public var favoriteCountriesLocaleIdentifiers: [String]?
-    public var callbackDelegate: NKVPhonePickerTextFieldProtocol?
+    public var callBackDelegate: NKVPhonePickerTextFieldProtocol?
     /// Use this var for setting custom phone formatting for countries. Use "#" char.
     /// Ex:
     ///
@@ -77,7 +76,22 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
     
     /// Method for set flag with Country entity.
     public func setFlag(country: Country) {
-        self.setFlag(phoneExtension: country.phoneExtension)
+        //        self.setFlag(phoneExtension: country.phoneExtension)
+        
+        let exists = NKVSourcesHelper.isFlagExistsFor(countryCode: country.countryCode)
+        if exists {
+            flagView.setFlagWith(countryCode: country.countryCode)
+            if let customFormats = customPhoneFormats {
+                for format in customFormats {
+                    if country.countryCode.uppercased() == format.key {
+                        self.setFormatting(format.value, replacementChar: "#")
+                        return
+                    }
+                }
+            }
+            self.setFormatting(country.formatPattern, replacementChar: "#")
+        }
+        
     }
     
     /// Method for set flag with phone extenion.
@@ -102,7 +116,7 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
     public var currentSelectedCountry: Country? {
         didSet {
             if let selected = currentSelectedCountry {
-                self.setCode(country: selected)
+                //self.setCode(country: selected)
                 self.setFlag(country: selected)
             }
         }
@@ -122,24 +136,24 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
     
     /// Insets for the flag icon.
     ///
-    /// Left and right insets affect on flag view. 
+    /// Left and right insets affect on flag view.
     /// Top and bottom insets - on image only.
     public var flagInsets: UIEdgeInsets? { didSet { customizeSelf() } }
     public var flagSize: CGSize?         { didSet { customizeSelf() } }
-
-
-
+    
+    
+    
     
     
     
     // MARK: - Implementation
     
     // MARK: Initialization
-    // With code initialization you always must define textField's height 
+    // With code initialization you always must define textField's height
     // in order to properly add a plus label.
     @available(*, unavailable)
     init() { super.init(frame: CGRect.zero) }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         initialize()
@@ -169,22 +183,26 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
         currentSelectedCountry = Country.currentCountry
         
         flagView.flagButton.addTarget(self, action: #selector(presentCountriesViewController), for: .touchUpInside)
+        self.addTarget(self, action: #selector(presentCountriesViewController), for: .editingDidBegin)
         self.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
-   
+    
     func addPlusLabel() {
         if isPlusPrefixExists && (plusLabel == nil) {
             plusLabel = UILabel(frame: CGRect.zero)
             plusLabel?.backgroundColor = UIColor.clear
-            plusLabel?.text = "+"
+            plusLabel?.text = ""
             self.addSubview(plusLabel!)
         }
         plusLabel?.font = self.font
         plusLabel?.textColor = self.textColor
-        plusLabel?.frame = CGRect(x: self.flagView.frame.size.width,
-                                  y: self.flagView.frame.origin.y,
-                                  width: (self.font?.pointSize ?? 10) / 1.5,
-                                  height: self.frame.size.height * 0.9)
+        if(self.flagView != nil){
+            plusLabel?.frame = CGRect(x: self.flagView.frame.size.width,
+                                      y: self.flagView.frame.origin.y,
+                                      width: (self.font?.pointSize ?? 10) / 1.5,
+                                      height: self.frame.size.height * 0.9)
+        }
+        
     }
     
     /// Presents a view controller to choose a country code.
@@ -214,11 +232,11 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
             pickerVC.countriesVCNavigationItem.title = pickerTitle
         }
         if let pickerTitleFont = pickerTitleFont, let navController = pickerVC.navigationController {
-            let fontAttributes = [NSFontAttributeName: pickerTitleFont]
+            let fontAttributes = [NSAttributedString.Key.font: pickerTitleFont]
             navController.navigationBar.titleTextAttributes = fontAttributes
         }
         if let pickerCancelButtonFont = pickerCancelButtonFont {
-            let fontAttributes = [NSFontAttributeName: pickerCancelButtonFont]
+            let fontAttributes = [NSAttributedString.Key.font: pickerCancelButtonFont]
             pickerVC.countriesVCNavigationItem.leftBarButtonItem?.setTitleTextAttributes(fontAttributes, for: .normal)
             pickerVC.countriesVCNavigationItem.leftBarButtonItem?.setTitleTextAttributes(fontAttributes, for: .highlighted)
         }
@@ -243,18 +261,18 @@ open class NKVPhonePickerTextField: TextFieldPatternFormat {
     }
     
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
-        return super.textRect(forBounds: UIEdgeInsetsInsetRect(bounds, textFieldTextInsets ?? UIEdgeInsets.zero))
+        return super.textRect(forBounds: bounds.inset(by: textFieldTextInsets ?? UIEdgeInsets.zero))
     }
     
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return super.editingRect(forBounds: UIEdgeInsetsInsetRect(bounds, textFieldTextInsets ?? UIEdgeInsets.zero))
+        return super.editingRect(forBounds: bounds.inset(by: textFieldTextInsets ?? UIEdgeInsets.zero))
     }
 }
 
 extension NKVPhonePickerTextField: CountriesViewControllerDelegate {
     public func countriesViewController(_ sender: CountriesViewController, didSelectCountry country: Country) {
         currentSelectedCountry = country
-        callbackDelegate?.countriesViewController(sender, didSelectCountry: country)
+        callBackDelegate?.countriesViewController(sender, didSelectCountry: country)
     }
     
     public func countriesViewControllerDidCancel(_ sender: CountriesViewController) {
@@ -269,7 +287,6 @@ extension NKVPhonePickerTextField: UITextFieldDelegate {
             if newString.characters.count == 1 || newString.characters.count == 0 {
                 self.setFlag(countryCode: "?")
             }
-
             let firstFourLetters = String(newString.characters.prefix(5))
             self.setFlag(phoneExtension: firstFourLetters)
         }

@@ -17,15 +17,15 @@ public class Country: NSObject {
     }
     /// Ex: "### ## ######"
     public var formatPattern: String
-    public var formatPatternPlaceholder: String
+    public var formatPatternPlaceHolder: String
     
-    public init(countryCode: String, phoneExtension: String, formatPattern: String = "###################", formatPatternPlaceholder: String) {
+    public init(countryCode: String, phoneExtension: String, formatPattern: String = "###################", formatPatternPlaceHolder: String) {
         self.countryCode = countryCode
         self.phoneExtension = phoneExtension
         self.formatPattern = formatPattern
-        
-        let phone = formatPatternPlaceholder
-        self.formatPatternPlaceholder = phone.replacingOccurrences(of: "[0123456789]", with: "x",options: .regularExpression)
+        //self.formatPatternPlaceHolder = formatPatternPlaceHolder
+        let phone = formatPatternPlaceHolder
+        self.formatPatternPlaceHolder = phone.replacingOccurrences(of: "[0123456789]", with: "x",options: .regularExpression)
     }
     
     /// Returns a Country entity of the current iphone's localization region code
@@ -42,12 +42,12 @@ public class Country: NSObject {
         return lhs.countryCode == rhs.countryCode
     }
     
-    // MARK: - Class methods   
+    // MARK: - Class methods
     
-    /// Returnes an empty country entity for test or other purposes. 
+    /// Returnes an empty country entity for test or other purposes.
     /// "+" code returns a flag with question mark.
     public static var empty: Country {
-        return Country(countryCode: "?", phoneExtension: "", formatPatternPlaceholder: "")
+        return Country(countryCode: "?", phoneExtension: "", formatPatternPlaceHolder: "")
     }
     
     /// Returns a country by a phone extension.

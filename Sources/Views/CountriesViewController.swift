@@ -15,7 +15,7 @@ public protocol CountriesViewControllerDelegate {
 public final class CountriesViewController: UITableViewController {
     @IBOutlet public weak var cancelBarButtonItem: UIBarButtonItem!
     @IBOutlet public weak var countriesVCNavigationItem: UINavigationItem!
-   
+    
     // MARK: - API
     
     /// A class function for retrieving standart controller for picking countries.
@@ -30,16 +30,16 @@ public final class CountriesViewController: UITableViewController {
     ///
     ///     countryVC.favoriteCountriesLocaleIdentifiers = ["RU", "JM", "GB"]
     public var favoriteCountriesLocaleIdentifiers: [String] = []
-
+    
     /// You can choose to hide or show a cancel button with this property.
     public var isCancelButtonHidden: Bool = false { didSet { configurateCancelButton() } }
     
     /// Set to 'false' if you don't need to scroll to selected country in CountryPickerViewController
     public var shouldScrollToSelectedCountry: Bool = true
-
+    
     /// A delegate for <CountriesViewControllerDelegate>.
     public var delegate: CountriesViewControllerDelegate?
-
+    
     /// The current selected country.
     public var selectedCountry: Country?
     
@@ -90,7 +90,7 @@ public final class CountriesViewController: UITableViewController {
     private func setupSearchController() {
         searchController.delegate = self
         searchController.searchResultsUpdater = self
-        searchController.dimsBackgroundDuringPresentation = false
+        searchController.dimsBackgroundDuringPresentation = true
         searchController.searchBar.delegate = self
         searchController.searchBar.sizeToFit()
         searchController.searchBar.searchBarStyle = .minimal
@@ -111,7 +111,7 @@ public final class CountriesViewController: UITableViewController {
         tableView.sectionIndexTrackingBackgroundColor = UIColor.clear
         tableView.sectionIndexBackgroundColor = UIColor.clear
         tableView.sectionIndexColor = UIColor.black
-        tableView.tableHeaderView = searchController.searchBar
+        tableView.tableHeaderView = UIView(frame: CGRect.zero)//searchController.searchBar
         tableView.tableFooterView = UIView(frame: CGRect.zero)
         tableView.scrollsToTop = true
     }
