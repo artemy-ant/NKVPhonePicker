@@ -83,7 +83,7 @@ open class TextFieldPatternFormat: UITextField {
      */
     var formattingPattern: String = "" {
         didSet {
-            self.maxLength = formattingPattern.count
+            self.maxLength = formattingPattern.characters.count
             self.formatting = .custom
         }
     }
@@ -160,21 +160,21 @@ open class TextFieldPatternFormat: UITextField {
         NotificationCenter.default.addObserver(self, selector: #selector(TextFieldPatternFormat.textDidChange), name: NSNotification.Name(rawValue: "UITextFieldTextDidChangeNotification"), object: self)
     }
     
-    @objc func textDidChange() {
+    func textDidChange() {
         
         // TODO: - Isn't there more elegant way how to do this?
         let currentTextForFormatting: String
         
-        if super.text?.count > _textWithoutSecureBullets.count {
-            currentTextForFormatting = _textWithoutSecureBullets + super.text!.substring(from: super.text!.index(super.text!.startIndex, offsetBy: _textWithoutSecureBullets.count))
-        } else if super.text?.count == 0 {
+        if super.text?.characters.count > _textWithoutSecureBullets.characters.count {
+            currentTextForFormatting = _textWithoutSecureBullets + super.text!.substring(from: super.text!.characters.index(super.text!.startIndex, offsetBy: _textWithoutSecureBullets.characters.count))
+        } else if super.text?.characters.count == 0 {
             _textWithoutSecureBullets = ""
             currentTextForFormatting = ""
         } else {
-            currentTextForFormatting = _textWithoutSecureBullets.substring(to: _textWithoutSecureBullets.index(_textWithoutSecureBullets.startIndex, offsetBy: super.text!.count))
+            currentTextForFormatting = _textWithoutSecureBullets.substring(to: _textWithoutSecureBullets.characters.index(_textWithoutSecureBullets.startIndex, offsetBy: super.text!.characters.count))
         }
         
-        if formatting != .noFormatting && currentTextForFormatting.count > 0 && formattingPattern.characters.count > 0 {
+        if formatting != .noFormatting && currentTextForFormatting.characters.count > 0 && formattingPattern.characters.count > 0 {
             let tempString = TextFieldPatternFormat.makeOnlyDigitsString(currentTextForFormatting)
             
             var finalText = ""
@@ -188,17 +188,17 @@ open class TextFieldPatternFormat: UITextField {
             while !stop {
                 let formattingPatternRange = formatterIndex ..< formattingPattern.index(formatterIndex, offsetBy: 1)
                 
-                if String(formattingPattern[formattingPatternRange]) != String(replacementChar) {
-                    finalText = finalText + String(formattingPattern[formattingPatternRange])
-                    finalSecureText = finalSecureText + String(formattingPattern[formattingPatternRange])
-                } else if tempString.count > 0 {
+                if formattingPattern.substring(with: formattingPatternRange) != String(replacementChar) {
+                    finalText = finalText + formattingPattern.substring(with: formattingPatternRange)
+                    finalSecureText = finalSecureText + formattingPattern.substring(with: formattingPatternRange)
+                } else if tempString.characters.count > 0 {
                     let pureStringRange = tempIndex ..< tempString.index(tempIndex, offsetBy: 1)
                     
-                    finalText = finalText + String(tempString[pureStringRange])
+                    finalText = finalText + tempString.substring(with: pureStringRange)
                     
                     // we want the last number to be visible
                     if tempString.index(tempIndex, offsetBy: 1) == tempString.endIndex {
-                        finalSecureText = finalSecureText + String(tempString[pureStringRange])
+                        finalSecureText = finalSecureText + tempString.substring(with: pureStringRange)
                     } else {
                         finalSecureText = finalSecureText + String(secureTextReplacementChar)
                     }
